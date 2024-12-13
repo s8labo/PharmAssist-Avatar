@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmAssistant</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+  <script type="importmap">
+  { "imports":
+    {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js/+esm",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/",
+      "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.2/modules/talkinghead.mjs"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { TalkingHead } from "talkinghead";
+
+    let head;
+
+    document.addEventListener('DOMContentLoaded', async function(e) {
+
+      const nodeAvatar = document.getElementById('avatar');
+      head = new TalkingHead( nodeAvatar, {
+        ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
+        ttsApikey: "AIzaSyD2DvM6vDBZm1SluT6h5iCpJPpjwXzcv5M", 
+        lipsyncModules: ["en", "fi"],
+        cameraView: "upper"
+      });
+
+      // Load and show the avatar
+      const nodeLoading = document.getElementById('loading');
+      try {
+        nodeLoading.textContent = "Loading...";
+        await head.showAvatar( {
+          url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
+          body: 'F',
+          avatarMood: 'neutral',
+          ttsLang: "de-DE",
+          ttsVoice: "de-DE-Standard-A",
+          lipsyncLang: 'de'
+        }, (ev) => {
+          if ( ev.lengthComputable ) {
+            let val = Math.min(100,Math.round(ev.loaded/ev.total * 100 ));
+            nodeLoading.textContent = "Loading " + val + "%";
+          }
+        });
+        nodeLoading.style.display = 'none';
+      } catch (error) {
+        console.log(error);
+        nodeLoading.textContent = error.toString();
+      }
+
+      head.speakText("hallo");
+
+      Speak when clicked
+      const nodeSpeak = document.getElementById('speak');
+      nodeSpeak.addEventListener('click', function () {
+        try {
+          const text = document.getElementById('text').value;
+          if ( text ) {
+            head.speakText( "test" );
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+
+    await initializeHead();
+
+    });
+
+    (async function() {
+        // const fetchSpeechServicesCredentials = {
+        //   credentials: {
+        //         region: 'germanywestcentral',
+        //         subscriptionKey: '724b12cefed2442c9df696992b249f89'
+        //     }
+        // }
+
+        // async function createHybridPonyfillFactory({ credentials }) {
+        //   const speechServicesPonyfillFactory = await window.WebChat.createCognitiveServicesSpeechServicesPonyfillFactory(
+        //     {
+        //       credentials
+        //     }
+        //   );
+
+        //   const webSpeechPonyfillFactory = await window.WebChat.createBrowserWebSpeechPonyfillFactory();
+
+        //   return options => {
+        //     const speechServicesPonyfill = speechServicesPonyfillFactory(options);
+        //     const webSpeechPonyfill = webSpeechPonyfillFactory(options);
+
+        //     return {
+        //       SpeechGrammarList: webSpeechPonyfill.SpeechGrammarList,
+        //       SpeechRecognition: webSpeechPonyfill.SpeechRecognition,
+
+        //       speechSynthesis: speechServicesPonyfill.speechSynthesis,
+        //       SpeechSynthesisUtterance: speechServicesPonyfill.SpeechSynthesisUtterance
+        //     };
+        //   };
+        // }
+
+        const styleSet = window.WebChat.createStyleSet({
+            rootHeight: '100%',
+            rootWidth: '100%',
+            backgroundColor: '#f4f4f4'
+        });
+
+        const avatarOptions = {
+            botAvatarInitials: 'PA',
+            userAvatarInitials: 'U'
+        };
+        // Function to simulate delay
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        const sendMessageWithDelay = async (message) => {
+            directLine.postActivity({ type: 'message', text: message });
+
+            // Introduce a delay of 3 seconds before displaying the bot's response
+            await delay(5000);
+
+            // Fetch the activities from the conversation and display them
+            const activities = await directLine.getActivity();
+            activities.forEach(activity => displayActivity(activity));
+        };
+
+        // Create a Redux store with middleware to capture incoming activities
+        const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+          if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
+            const event = new Event('webchatincomingactivity');
+
+            // Attach the bot's activity (message) to the custom event
+            event.data = action.payload.activity;
+            window.dispatchEvent(event);
+          }
+
+          return next(action);
+        });
+
+        window.WebChat.renderWebChat({
+            directLine: window.WebChat.createDirectLine({
+                token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4'
+            }),
+            store,
+            sendTyping: true,
+            // webSpeechPonyfillFactory,
+            // webSpeechPonyfillFactory: await createHybridPonyfillFactory({ credentials: fetchSpeechServicesCredentials }),
+            enableTelemetry: false,
+            styleSet,
+            styleOptions: avatarOptions,
+            botName: 'PharmAssistant',
+            sendMessage: sendMessageWithDelay,
+
+        }, document.getElementById('webchat'));
+
+        // Event listener for incoming bot activities
+        window.addEventListener('webchatincomingactivity', ({ data }) => {
+          if (data.type === 'message' && data.from.role === 'bot') {
+            const botMessage = data.text;
+            // const messageID = data;
+            // console.log(`Bot says: ${JSON.stringify(messageID, null, 2)}`);
+
+            // Make the avatar speak the bot message using TTS
+            if (typeof head !== 'undefined' && head.speakText) {
+              head.speakText(botMessage); // Avatar speaks the bot's message
+            } else {
+              console.error('Avatar head is not initialized.');
+            }
+          }
+        });
+
+        // Focus on Web Chat for better user experience
+        document.querySelector('#webchat > *').focus();
+      })().catch(err => console.error(err));
+
+      window.addEventListener('webchatincomingactivity', ({ data }) => {
+        console.log(`all data: ${JSON.stringify(data)}`);
+      });
+
+
+    let counter = 1;
+    let counter2 = 1;
+
+
+    window.addEventListener('webchatincomingactivity', ({ data }) => {
+      const tableBody1 = document.querySelector('#userMasterData tbody');
+      const tableBody2 = document.querySelector('#userMedicationData tbody');
+      const tableBody3 = document.querySelector('#userOtcMedicationData tbody');
+
+      if (data.type === 'message' && data.from.role === 'user' && data.value) {
+        const { value } = data;
+
+        // Handle master data
+        const { grund, name, geschlecht, geburtsdatum, kontakt } = value;
+        const masterData = [grund, name, geschlecht, geburtsdatum, kontakt];
+
+        // Check if there's an empty row in the master data table
+        const firstRow1 = tableBody1.querySelector('.empty');
+        if (firstRow1) {
+          // If an empty row is found, fill it and remove the "empty" class
+          fillRow(firstRow1, masterData);
+          firstRow1.classList.remove('empty');
+        } 
+
+        // Handle medication data
+        // let counter = 1;
+        while (true) {
+          const pznKey = `medikament_pzn${counter}`;
+          const nameKey = `medikament_name${counter}`;
+          const indicationKey = `medikament_indikation${counter}`;
+          const doseKey = `medikament_dosis${counter}`;
+          const foodKey = `medikament_einnahme${counter}`;
+          const prescriptionKey = `medikament_verordnung${counter}`;
+          const alternativeprescKey = `medikament_falsche_einnahme${counter}`;
+          const forgottendoseKey = `medikament_vergessen${counter}`;
+          const forgottendoseprocedureKey = `medikament_vergessen_vorgehensweise${counter}`;
+          const betterKey = `medikament_besserung${counter}`;
+          const worseKey = `medikament_verschlechterung${counter}`;
+          const commentKey = `medikament_probleme${counter}`;
+          const storageKey = `medikament_lagerung${counter}`;
+          const expirationKey = `medikament_ablaufdatum${counter}`;
+
+          // Stop if required fields for medication are missing
+          if (!value[nameKey] && !value[indicationKey] && !value[doseKey]) {
+            break;
+          }
+
+          // Construct the medication data row
+          const medicationData = [
+            counter,
+            value[pznKey] || '-',
+            value[nameKey],
+            value[indicationKey],
+            value[doseKey],
+            value[foodKey] || '-',
+            value[prescriptionKey] || '-',
+            value[alternativeprescKey] || '-',
+            value[forgottendoseKey] || '-',
+            value[forgottendoseprocedureKey] || '-',
+            value[betterKey] || '-',
+            value[worseKey] || '-',
+            value[commentKey] || '-',
+            value[storageKey] || '-',
+            value[expirationKey] || '-'
+          ];
+
+          // Check if there's an empty row in the medication table
+          const firstRow2 = tableBody2.querySelector('.empty');
+          if (firstRow2) {
+            // If an empty row is found, fill it and remove the "empty" class
+            fillRow(firstRow2, medicationData);
+            firstRow2.classList.remove('empty');
+          } else {
+            // If no empty row exists, add a new row for medication data
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = medicationData.map(item => `<td>${item}</td>`).join('');
+            tableBody2.appendChild(newRow);
+          }
+
+          counter++;
+        }
+
+        while (true) {
+          const otcpznKey = `otcmedikament_pzn${counter2}`;
+          const otcnameKey = `otcmedikament_name${counter2}`;
+          const otcindicationKey = `otcmedikament_indikation${counter2}`;
+          const otcdoseKey = `otcmedikament_dosis${counter2}`;
+          const otcfoodKey = `otcmedikament_einnahme${counter2}`;
+          const otcbetterKey = `otcmedikament_besserung${counter}`;
+          const otcworseKey = `otcmedikament_verschlechterung${counter2}`;
+          const otccommentKey = `otcmedikament_probleme${counter2}`;
+          const otcstorageKey = `otcmedikament_lagerung${counter2}`;
+          const otcexpirationKey = `otcmedikament_ablaufdatum${counter2}`;
+
+          // Stop if required fields for medication are missing
+          if (!value[otcnameKey] && !value[otcindicationKey] && !value[otcdoseKey]) {
+            break;
+          }
+
+          // Construct the medication data row
+          const otcmedicationData = [
+            counter2,
+            value[otcpznKey] || '-',
+            value[otcnameKey],
+            value[otcindicationKey],
+            value[otcdoseKey],
+            value[otcfoodKey] || '-',
+            value[otcbetterKey] || '-',
+            value[otcworseKey] || '-',
+            value[otccommentKey] || '-',
+            value[otcstorageKey] || '-',
+            value[otcexpirationKey] || '-'
+          ];
+
+          // Check if there's an empty row in the medication table
+          const firstRow3 = tableBody3.querySelector('.empty');
+          if (firstRow3) {
+            // If an empty row is found, fill it and remove the "empty" class
+            fillRow(firstRow23, otcmedicationData);
+            firstRow3.classList.remove('empty');
+          } else {
+            // If no empty row exists, add a new row for medication data
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = otcmedicationData.map(item => `<td>${item}</td>`).join('');
+            tableBody3.appendChild(newRow);
+          }
+
+          counter2++;
+        }
+      }
+    });
+
+    // Function to fill row with data
+    function fillRow(row, dataArray) {
+      const cells = row.children;
+      dataArray.forEach((value, index) => {
+        cells[index].textContent = value || '-'; // Fill empty cells with the provided value or default
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Select all scroll containers and their arrows
+        const scrollContainers = document.querySelectorAll(".scroll-container");
+
+        scrollContainers.forEach((container) => {
+            const leftArrow = container.parentNode.querySelector(".left-arrow");
+            const rightArrow = container.parentNode.querySelector(".right-arrow");
+
+            if (!container || !leftArrow || !rightArrow) {
+                console.error("Elements not found for a scroll container.");
+                return;
+            }
+
+            const scrollStep = 100;
+
+            // Update arrow visibility based on scroll position
+            function updateArrowVisibility() {
+                const scrollLeft = container.scrollLeft;
+                const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+                leftArrow.classList.toggle("hidden", scrollLeft === 0);
+                rightArrow.classList.toggle("hidden", scrollLeft >= maxScrollLeft);
+            }
+
+            // Scroll event listeners for arrows
+            leftArrow.addEventListener("click", () => {
+                container.scrollBy({ left: -scrollStep, behavior: "smooth" });
+            });
+
+            rightArrow.addEventListener("click", () => {
+                container.scrollBy({ left: scrollStep, behavior: "smooth" });
+            });
+
+            container.addEventListener("scroll", updateArrowVisibility);
+            window.addEventListener("resize", updateArrowVisibility);
+
+            // Initialize arrow visibility for each table
+            updateArrowVisibility();
+        });
+    });
+
+
+
+
+  </script>
+</head>
+
+<body>
+  <div id="left-panel">
+    <div class="header"><h1>Your PharmAssistant</h1></div>
+    <div id="container"><p>The PharmAssistant is here to simplify your medication review process. It helps you collect and organize the details of the medications you're currently taking.<br>
+    💬 How it works: </p>
+    <ul>
+        <li>Start chatting with the assistant.</li>
+        <li>Share your master data, prescribed medication and non-prescribed medication information.</li>
+        <li>Review and confirm the information.</li>
+    </ul>
+    <p>
+        Once confirmed, your medication list will appear here for easy reference.
+    </p></div>
+    <h2>Your master data</h2>
+    <table id="userMasterData">
+      <thead>
+        <tr>
+          <th>Grund</th>
+          <th>Name</th>
+          <th>Geschlecht</th>
+          <th>Geburtsdatum</th>
+          <th>Kontakt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="empty">
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <h2>Your prescribed medication data</h2>
+    <div class="scroll-wrapper">
+      <div class="scroll-arrow left-arrow"><</div>
+        <div class="scroll-container">
+          <table id="userMedicationData">
+            <thead>
+              <tr>
+                <th>Medication number</th>
+                <th>PZN number</th>
+                <th>Medication name</th>
+                <th>Indication</th>
+                <th>Time & Dosis</th>
+                <th>Intake with food?</th>
+                <th>Taken as prescribed?</th>
+                <th>False intake?</th>
+                <th>Forgotten intake?</th>
+                <th>Procedure by false intake</th>
+                <th>Suspension on improvement</th>
+                <th>Suspension on deterioration</th>
+                <th>Problems/Comments</th>
+                <th>Storage</th>
+                <th>Expiration date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="empty">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      <div class="scroll-arrow right-arrow">></div>
+    </div>
+    <br>
+    <h2>Your non-prescribed medication data</h2>
+    <div class="scroll-wrapper">
+      <div class="scroll-arrow left-arrow"><</div>
+        <div class="scroll-container">
+          <table id="userOtcMedicationData">
+            <thead>
+              <tr>
+                <th>Medication number</th>
+                <th>PZN number</th>
+                <th>Medication name</th>
+                <th>Indication</th>
+                <th>Time & Dosis</th>
+                <th>Intake with food?</th>
+                <th>Suspension on improvement</th>
+                <th>Suspension on deterioration</th>
+                <th>Problems/Comments</th>
+                <th>Storage</th>
+                <th>Expiration date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="empty">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      <div class="scroll-arrow right-arrow">></div>
+    </div>
+  </div>
+
+  <div id="right-panel">
+      <div id="avatar"></div>
+      <div id="loading">Loading...</div>
+      <div id="webchat" role="main">
+        <div class="typing-animation"></div>
+      </div>
+  </div>
+  
+</body>
+</html>
