@@ -185,7 +185,8 @@
           directLine.activity$.subscribe(activity => {
             if (activity.from.role === 'bot' && !firstMessageReceived) {
               firstMessageReceived = true;
-              checkAllLoaded();
+              nodeLoading.style.display = 'none';
+              nodeRightPanel.style.display = 'block';
             }
           });
 
@@ -207,11 +208,11 @@
         }
 
         // Unified check
-        function checkAllLoaded() {
-          if (avatarLoaded && firstMessageReceived) {
-            nodeLoading.style.display = 'none'; // Hide loading screen
-            nodeRightPanel.style.display = 'block'; // Show main content
-          }
+        // function checkAllLoaded() {
+        //   if (avatarLoaded && firstMessageReceived) {
+        //     nodeLoading.style.display = 'none'; // Hide loading screen
+        //     nodeRightPanel.style.display = 'block'; // Show main content
+        //   }
         }
 
         // Create a Redux store with middleware to capture incoming activities
