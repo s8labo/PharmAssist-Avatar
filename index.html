@@ -169,37 +169,41 @@
         }
 
         // Step 2: Initialize and load WebChat
-        const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
-          if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
-            const event = new Event('webchatincomingactivity');
-            event.data = action.payload.activity;
-            window.dispatchEvent(event);
-          }
-          return next(action);
-        });
+        // const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+        //   if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
+        //     const event = new Event('webchatincomingactivity');
+        //     event.data = action.payload.activity;
+        //     window.dispatchEvent(event);
+        //   }
+        //   return next(action);
+        // });
 
-        window.WebChat.renderWebChat({
-          directLine: window.WebChat.createDirectLine({
-            token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4'
-          }),
-          store,
-          sendTyping: true,
-          enableTelemetry: false,
-          styleSet,
-          styleOptions: avatarOptions,
-          botName: 'PharmAssistant',
-          sendMessage: sendMessageWithDelay,
-        }, nodeWebChat);
+          // Step 2: Set up WebChat
+          const directLine = window.WebChat.createDirectLine({ token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4' });
 
-        // Simulate WebChat loading completion after initialization
-        webChatLoaded = true;
-        checkAllLoaded();
+          // Listen for the first message
+          directLine.activity$.subscribe(activity => {
+            if (activity.from.role === 'bot' && !firstMessageReceived) {
+              firstMessageReceived = true;
+              checkAllLoaded();
+            }
+          });
 
-        // Step 3: Unified check to hide the loading indicator
+        try {
+          await window.WebChat.renderWebChat({
+            directLine,
+            styleOptions,
+          }, nodeWebChat);
+        } catch (error) {
+          console.error('WebChat load error:', error);
+          nodeLoading.textContent = 'Error loading chatbot.';
+        }
+
+        // Unified check
         function checkAllLoaded() {
-          if (avatarLoaded && webChatLoaded) {
-            nodeLoading.style.display = 'none'; // Hide the loading indicator
-            nodeRightPanel.style.display = 'block'; // Show the entire right panel
+          if (avatarLoaded && firstMessageReceived) {
+            nodeLoading.style.display = 'none'; // Hide loading screen
+            nodeRightPanel.style.display = 'block'; // Show main content
           }
         }
 
