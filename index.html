@@ -20,7 +20,44 @@
 
     let head;
 
-    document.addEventListener('DOMContentLoaded', async function(e) {
+    // Step 1: Set up loading state for the entire right panel
+      const nodeLoading = document.getElementById('loading');
+      const nodeRightPanel = document.getElementById('right-panel');
+      const nodeWebChat = document.getElementById('webchat');
+      const nodeAvatar = document.getElementById('avatar');
+
+      // Initially hide the entire panel and show the loading message
+      nodeRightPanel.style.display = 'none';  // Hide the right panel
+      nodeLoading.textContent = "Loading chatbot...";  // Set the initial loading 
+
+      const initializeChatbot = () => {
+        const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+          if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
+            const event = new Event('webchatincomingactivity');
+            event.data = action.payload.activity;
+            window.dispatchEvent(event);
+          }
+          return next(action);
+        });
+
+        // Render the WebChat component
+        window.WebChat.renderWebChat({
+          directLine: window.WebChat.createDirectLine({
+            token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4'
+          }),
+          store,
+          sendTyping: true,
+          enableTelemetry: false,
+          styleSet,
+          styleOptions: avatarOptions,
+          botName: 'PharmAssistant',
+          sendMessage: sendMessageWithDelay,
+        }, nodeWebChat);
+
+        // Step 3: Once WebChat is initialized, hide the loading state and show the right panel
+        nodeLoading.style.display = 'none';  // Hide the loading message
+        nodeRightPanel.style.display = 'block';  // Show the right panel (which includes WebChat)
+      };
 
       const nodeAvatar = document.getElementById('avatar');
       head = new TalkingHead( nodeAvatar, {
@@ -30,47 +67,96 @@
         cameraView: "head"
       });
 
-      // Load and show the avatar
-      const nodeLoading = document.getElementById('loading');
-      try {
-        nodeLoading.textContent = "Loading...";
-        await head.showAvatar( {
-          url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
-          body: 'F',
-          avatarMood: 'neutral',
-          ttsLang: "en-US",
-          ttsVoice: "en-US-Standard-H",
-          lipsyncLang: 'en'
-        }, (ev) => {
-          if ( ev.lengthComputable ) {
-            let val = Math.min(100,Math.round(ev.loaded/ev.total * 100 ));
-            nodeLoading.textContent = "Loading " + val + "%";
-          }
-        });
-        nodeLoading.style.display = 'none';
-      } catch (error) {
-        console.log(error);
-        nodeLoading.textContent = error.toString();
-      }
+      // Step 4: Load the avatar (this could be done asynchronously)
+      const loadAvatar = async () => {
+        try {
+          nodeLoading.textContent = "Loading avatar...";  // Show loading for the avatar
 
-      head.speakText("Hi, I’m your PharmAssistant, let’s start! Why do you want to do a medication review?");
+          await head.showAvatar({
+            url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
+            body: 'F',
+            avatarMood: 'neutral',
+            ttsLang: "en-US",
+            ttsVoice: "en-US-Standard-H",
+            lipsyncLang: 'en'
+          }, (ev) => {
+            if (ev.lengthComputable) {
+              let val = Math.min(100, Math.round(ev.loaded / ev.total * 100));
+              nodeLoading.textContent = "Loading avatar " + val + "%";  // Show avatar load progress
+            }
+          });
 
-      // Speak when clicked
-      // const nodeSpeak = document.getElementById('speak');
-      // nodeSpeak.addEventListener('click', function () {
-      //   try {
-      //     const text = document.getElementById('text').value;
-      //     if ( text ) {
-      //       head.speakText( "test" );
-      //     }
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-      // });
+          nodeLoading.textContent = "Avatar loaded!";  // Final message for avatar
+          nodeAvatar.style.display = 'block';  // Show avatar once loaded
+        } catch (error) {
+          console.error(error);
+          nodeLoading.textContent = "Error loading avatar: " + error.toString();
+        }
+      };
 
-    await initializeHead();
+      // Step 5: Run both avatar loading and chatbot initialization
+      const initializeChatbotWithAvatar = async () => {
+        // Load the avatar first (optional, can be done in parallel if needed)
+        await loadAvatar();  // Wait for avatar loading
+        
+        // Initialize the chatbot (after or before avatar loading)
+        initializeChatbot();  // Load WebChat after avatar
+      };
 
-    });
+      // Step 6: Start the loading process for both chatbot and avatar
+      initializeChatbotWithAvatar();
+
+    // document.addEventListener('DOMContentLoaded', async function(e) {
+
+    //   const nodeAvatar = document.getElementById('avatar');
+    //   head = new TalkingHead( nodeAvatar, {
+    //     ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
+    //     ttsApikey: "AIzaSyD2DvM6vDBZm1SluT6h5iCpJPpjwXzcv5M", 
+    //     lipsyncModules: ["en", "fi"],
+    //     cameraView: "head"
+    //   });
+
+    //   // Load and show the avatar
+    //   const nodeLoading = document.getElementById('loading');
+    //   try {
+    //     nodeLoading.textContent = "Loading...";
+    //     await head.showAvatar( {
+    //       url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
+    //       body: 'F',
+    //       avatarMood: 'neutral',
+    //       ttsLang: "en-US",
+    //       ttsVoice: "en-US-Standard-H",
+    //       lipsyncLang: 'en'
+    //     }, (ev) => {
+    //       if ( ev.lengthComputable ) {
+    //         let val = Math.min(100,Math.round(ev.loaded/ev.total * 100 ));
+    //         nodeLoading.textContent = "Loading " + val + "%";
+    //       }
+    //     });
+    //     nodeLoading.style.display = 'none';
+    //   } catch (error) {
+    //     console.log(error);
+    //     nodeLoading.textContent = error.toString();
+    //   }
+
+    //   head.speakText("Hi, I’m your PharmAssistant, let’s start! Why do you want to do a medication review?");
+
+    //   // Speak when clicked
+    //   // const nodeSpeak = document.getElementById('speak');
+    //   // nodeSpeak.addEventListener('click', function () {
+    //   //   try {
+    //   //     const text = document.getElementById('text').value;
+    //   //     if ( text ) {
+    //   //       head.speakText( "test" );
+    //   //     }
+    //   //   } catch (error) {
+    //   //     console.log(error);
+    //   //   }
+    //   // });
+
+    // await initializeHead();
+
+    // });
 
     (async function() {
         // const fetchSpeechServicesCredentials = {
@@ -127,34 +213,34 @@
             activities.forEach(activity => displayActivity(activity));
         };
 
-        // Create a Redux store with middleware to capture incoming activities
-        const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
-          if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
-            const event = new Event('webchatincomingactivity');
+        // // Create a Redux store with middleware to capture incoming activities
+        // const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+        //   if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
+        //     const event = new Event('webchatincomingactivity');
 
-            // Attach the bot's activity (message) to the custom event
-            event.data = action.payload.activity;
-            window.dispatchEvent(event);
-          }
+        //     // Attach the bot's activity (message) to the custom event
+        //     event.data = action.payload.activity;
+        //     window.dispatchEvent(event);
+        //   }
 
-          return next(action);
-        });
+        //   return next(action);
+        // });
 
-        window.WebChat.renderWebChat({
-            directLine: window.WebChat.createDirectLine({
-                token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4'
-            }),
-            store,
-            sendTyping: true,
-            // webSpeechPonyfillFactory,
-            // webSpeechPonyfillFactory: await createHybridPonyfillFactory({ credentials: fetchSpeechServicesCredentials }),
-            enableTelemetry: false,
-            styleSet,
-            styleOptions: avatarOptions,
-            botName: 'PharmAssistant',
-            sendMessage: sendMessageWithDelay,
+        // window.WebChat.renderWebChat({
+        //     directLine: window.WebChat.createDirectLine({
+        //         token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4'
+        //     }),
+        //     store,
+        //     sendTyping: true,
+        //     // webSpeechPonyfillFactory,
+        //     // webSpeechPonyfillFactory: await createHybridPonyfillFactory({ credentials: fetchSpeechServicesCredentials }),
+        //     enableTelemetry: false,
+        //     styleSet,
+        //     styleOptions: avatarOptions,
+        //     botName: 'PharmAssistant',
+        //     sendMessage: sendMessageWithDelay,
 
-        }, document.getElementById('webchat'));
+        // }, document.getElementById('webchat'));
 
         // Event listener for incoming bot activities
         window.addEventListener('webchatincomingactivity', ({ data }) => {
