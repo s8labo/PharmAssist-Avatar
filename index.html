@@ -16,44 +16,44 @@
   </script>
 
   <script type="module">
-    import { TalkingHead } from "talkinghead";
+    // import { TalkingHead } from "talkinghead";
 
-    let head;
+    // let head;
 
-    document.addEventListener('DOMContentLoaded', async function(e) {
+    // document.addEventListener('DOMContentLoaded', async function(e) {
 
-      const nodeAvatar = document.getElementById('avatar');
-      head = new TalkingHead( nodeAvatar, {
-        ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
-        ttsApikey: "AIzaSyD2DvM6vDBZm1SluT6h5iCpJPpjwXzcv5M", 
-        lipsyncModules: ["en", "fi"],
-        cameraView: "head"
-      });
+    //   const nodeAvatar = document.getElementById('avatar');
+    //   head = new TalkingHead( nodeAvatar, {
+    //     ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
+    //     ttsApikey: "AIzaSyD2DvM6vDBZm1SluT6h5iCpJPpjwXzcv5M", 
+    //     lipsyncModules: ["en", "fi"],
+    //     cameraView: "head"
+    //   });
 
-      // Load and show the avatar
-      const nodeLoading = document.getElementById('loading');
-      try {
-        nodeLoading.textContent = "Loading...";
-        await head.showAvatar( {
-          url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
-          body: 'F',
-          avatarMood: 'neutral',
-          ttsLang: "en-US",
-          ttsVoice: "en-US-Standard-H",
-          lipsyncLang: 'en'
-        }, (ev) => {
-          if ( ev.lengthComputable ) {
-            let val = Math.min(100,Math.round(ev.loaded/ev.total * 100 ));
-            nodeLoading.textContent = "Loading " + val + "%";
-          }
-        });
-        nodeLoading.style.display = 'none';
-      } catch (error) {
-        console.log(error);
-        nodeLoading.textContent = error.toString();
-      }
+    //   // Load and show the avatar
+    //   const nodeLoading = document.getElementById('loading');
+    //   try {
+    //     nodeLoading.textContent = "Loading...";
+    //     await head.showAvatar( {
+    //       url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
+    //       body: 'F',
+    //       avatarMood: 'neutral',
+    //       ttsLang: "en-US",
+    //       ttsVoice: "en-US-Standard-H",
+    //       lipsyncLang: 'en'
+    //     }, (ev) => {
+    //       if ( ev.lengthComputable ) {
+    //         let val = Math.min(100,Math.round(ev.loaded/ev.total * 100 ));
+    //         nodeLoading.textContent = "Loading " + val + "%";
+    //       }
+    //     });
+    //     nodeLoading.style.display = 'none';
+    //   } catch (error) {
+    //     console.log(error);
+    //     nodeLoading.textContent = error.toString();
+    //   }
 
-      // Speak when clicked
+    //   // Speak when clicked
       // const nodeSpeak = document.getElementById('speak');
       // nodeSpeak.addEventListener('click', function () {
       //   try {
@@ -66,9 +66,9 @@
       //   }
       // });
 
-    await initializeHead();
+    // await initializeHead();
 
-    });
+    // });
 
     (async function() {
         // const fetchSpeechServicesCredentials = {
@@ -125,46 +125,83 @@
             activities.forEach(activity => displayActivity(activity));
         };
 
-        // Step 1: Set up loading state for WebChat
-        const nodeLoadingWebChat = document.getElementById('loading-webchat');
+        // Elements
+        const nodeLoading = document.getElementById('loading');
+        const nodeRightPanel = document.getElementById('right-panel');
         const nodeWebChat = document.getElementById('webchat');
+        const nodeAvatar = document.getElementById('avatar');
 
-        // Initially show loading text or spinner
-        nodeWebChat.style.display = 'none'; // Hide the WebChat container initially
-        nodeLoadingWebChat.style.display = 'block'; // Show loading message
+        let avatarLoaded = false;
+        let webChatLoaded = false;
 
-        // Step 2: Create and initialize the chatbot (render WebChat)
-        const initializeWebChat = () => {
-          const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
-            if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
-              const event = new Event('webchatincomingactivity');
-              event.data = action.payload.activity;
-              window.dispatchEvent(event);
+        // Show the loading indicator
+        nodeLoading.style.display = 'block';
+        nodeRightPanel.style.display = 'none';
+
+        // Step 1: Initialize and load the avatar
+        const head = new TalkingHead(nodeAvatar, {
+          ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
+          ttsApikey: "AIzaSyD2DvM6vDBZm1SluT6h5iCpJPpjwXzcv5M", // Add your API key
+          lipsyncModules: ["en", "fi"],
+          cameraView: "head"
+        });
+
+        try {
+          await head.showAvatar({
+            url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
+            body: 'F',
+            avatarMood: 'neutral',
+            ttsLang: "en-US",
+            ttsVoice: "en-US-Standard-H",
+            lipsyncLang: 'en'
+          }, (ev) => {
+            if (ev.lengthComputable) {
+              let val = Math.min(100, Math.round(ev.loaded / ev.total * 100));
+              nodeLoading.textContent = `Loading... Avatar: ${val}%`;
             }
-            return next(action);
           });
 
-          // Step 3: Render WebChat
-          window.WebChat.renderWebChat({
-            directLine: window.WebChat.createDirectLine({
-              token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY4'
-            }),
-            store,
-            sendTyping: true,
-            enableTelemetry: false,
-            styleSet,
-            styleOptions: avatarOptions,
-            botName: 'PharmAssistant',
-            sendMessage: sendMessageWithDelay,
-          }, nodeWebChat);
+          avatarLoaded = true;
+          checkAllLoaded();
+        } catch (error) {
+          console.log(error);
+          nodeLoading.textContent = `Error loading avatar: ${error}`;
+        }
 
-          // Step 4: Once WebChat is initialized, hide the loader and show the WebChat container
-          nodeLoadingWebChat.style.display = 'none'; // Hide loading message
-          nodeWebChat.style.display = 'block'; // Show the WebChat container
-        };
+        // Step 2: Initialize and load WebChat
+        const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+          if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
+            const event = new Event('webchatincomingactivity');
+            event.data = action.payload.activity;
+            window.dispatchEvent(event);
+          }
+          return next(action);
+        });
 
-        // Step 5: Call the function to initialize WebChat
-        initializeWebChat();
+        window.WebChat.renderWebChat({
+          directLine: window.WebChat.createDirectLine({
+            token: 'AavR0Oh2MoQ.k8agJWGKvkYtM92I0013G-A3eObi4iVxVVGEcZFYLY'
+          }),
+          store,
+          sendTyping: true,
+          enableTelemetry: false,
+          styleSet,
+          styleOptions: avatarOptions,
+          botName: 'PharmAssistant',
+          sendMessage: sendMessageWithDelay,
+        }, nodeWebChat);
+
+        // Simulate WebChat loading completion after initialization
+        webChatLoaded = true;
+        checkAllLoaded();
+
+        // Step 3: Unified check to hide the loading indicator
+        function checkAllLoaded() {
+          if (avatarLoaded && webChatLoaded) {
+            nodeLoading.style.display = 'none'; // Hide the loading indicator
+            nodeRightPanel.style.display = 'block'; // Show the entire right panel
+          }
+        }
 
         // Create a Redux store with middleware to capture incoming activities
         // const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
@@ -536,11 +573,13 @@
       <div class="scroll-arrow right-arrow">></div>
     </div>
   </div>
-  <div id="right-panel">
-    <div id="loading-webchat">Loading WebChat...</div> <!-- Show loading text or spinner here -->
-    <div id="avatar"></div>
-    <div id="webchat" role="main"></div> <!-- WebChat container -->
-  </div>
+  <div id="right-panel" style="display: none;">
+  <div id="avatar"></div>  <!-- Avatar container -->
+  <div id="webchat" role="main"></div>  <!-- WebChat container -->
+</div>
+
+<div id="loading">Loading...</div>  <!-- Single loading message -->
+
 <!--   <div id="right-panel">
       <div id="avatar"></div>
       <div id="loading">Loading...</div>

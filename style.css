@@ -162,15 +162,15 @@ tbody {
     display: none;
 }
 
-#loading-webchat {
+#loading {
   text-align: center;
   padding: 20px;
   font-size: 16px;
   color: #333;
 }
 
-#loading-webchat::after {
-  content: "⏳"; /* A simple loading spinner or any icon */
+#loading::after {
+  content: "⏳"; /* Spinner icon or other loading animation */
   font-size: 24px;
   animation: spin 1s infinite linear;
 }
@@ -179,6 +179,7 @@ tbody {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
 
 @media only screen and (max-width: 768px) {
 
