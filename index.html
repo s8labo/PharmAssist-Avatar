@@ -27,7 +27,7 @@
         ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
         ttsApikey: "AIzaSyD2DvM6vDBZm1SluT6h5iCpJPpjwXzcv5M", 
         lipsyncModules: ["en", "fi"],
-        cameraView: "upper"
+        cameraView: "head"
       });
 
       // Load and show the avatar
@@ -53,20 +53,20 @@
         nodeLoading.textContent = error.toString();
       }
 
-      head.speakText("hallo");
+      // head.speakText("hallo");
 
       // Speak when clicked
-      const nodeSpeak = document.getElementById('speak');
-      nodeSpeak.addEventListener('click', function () {
-        try {
-          const text = document.getElementById('text').value;
-          if ( text ) {
-            head.speakText( "test" );
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      });
+      // const nodeSpeak = document.getElementById('speak');
+      // nodeSpeak.addEventListener('click', function () {
+      //   try {
+      //     const text = document.getElementById('text').value;
+      //     if ( text ) {
+      //       head.speakText( "test" );
+      //     }
+      //   } catch (error) {
+      //     console.log(error);
+      //   }
+      // });
 
     await initializeHead();
 
