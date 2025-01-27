@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <body>
   <div id="left-panel">
-    <div class="header"><h1>Your PharmAssistant</h1></div>
+    <div class="header"><h1>Your PharmAssistant Version 2</h1></div>
     <div id="container"><p>The PharmAssistant is here to simplify your medication review process. It helps you collect and organize the details of the medications you're currently taking.<br>
     💬 How it works: </p>
     <ul>
@@ -488,120 +488,170 @@ document.addEventListener('DOMContentLoaded', () => {
     <p>
         Once confirmed, your medication list will appear here for easy reference.
     </p></div>
-    <h2>Your master data</h2>
-    <div class="scroll-wrapper">
-      <div class="scroll-arrow left-arrow"><</div>
-        <div class="scroll-container">
-          <table id="userMasterData">
-            <thead>
-              <tr>
-                <th>Grund</th>
-                <th>Name</th>
-                <th>Geschlecht</th>
-                <th>Geburtsdatum</th>
-                <th>Kontakt</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="empty">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      <div class="scroll-arrow right-arrow">></div>
+    <!-- <h2>Your Master Data</h2> -->
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Master Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userMasterDataContainer" class="collapsible-content">
+        <table id="userMasterData">
+          <tbody>
+            <tr>
+              <th>Reason</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Gender</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Birthdate</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Contact</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <br>
-    <h2>Your prescribed medication data</h2>
-    <div class="scroll-wrapper">
-      <div class="scroll-arrow left-arrow"><</div>
-        <div class="scroll-container">
-          <table id="userMedicationData">
-            <thead>
-              <tr>
-                <th>Medication number</th>
-                <th>PZN number</th>
-                <th>Medication name</th>
-                <th>Indication</th>
-                <th>Time & Dosis</th>
-                <th>Intake with food?</th>
-                <th>Taken as prescribed?</th>
-                <th>False intake?</th>
-                <th>Forgotten intake?</th>
-                <th>Procedure by false intake</th>
-                <th>Suspension on improvement</th>
-                <th>Suspension on deterioration</th>
-                <th>Problems/Comments</th>
-                <th>Storage</th>
-                <th>Expiration date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="empty">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      <div class="scroll-arrow right-arrow">></div>
+    <!-- <h2>Your Prescribed Medication Data</h2> -->
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Prescribed Medication Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userMedicationDataContainer" class="collapsible-content">
+        <table id="userMedicationData">
+          <tbody>
+            <tr>
+              <th>Medication Number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>PZN Number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Medication Name</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Indication</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Time & Dose</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Intake with Food</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Taken as Prescribed</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>False Intake</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Forgotten Dose</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Procedure by False Intake</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Suspension on Improvement</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Suspension on Deterioration</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Comments</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Storage</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Expiration Date</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <br>
-    <h2>Your non-prescribed medication data</h2>
-    <div class="scroll-wrapper">
-      <div class="scroll-arrow left-arrow"><</div>
-        <div class="scroll-container">
-          <table id="userOtcMedicationData">
-            <thead>
-              <tr>
-                <th>Medication number</th>
-                <th>PZN number</th>
-                <th>Medication name</th>
-                <th>Indication</th>
-                <th>Time & Dosis</th>
-                <th>Intake with food?</th>
-                <th>Suspension on improvement</th>
-                <th>Suspension on deterioration</th>
-                <th>Problems/Comments</th>
-                <th>Storage</th>
-                <th>Expiration date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="empty">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      <div class="scroll-arrow right-arrow">></div>
+    <!-- <h2>Your Non-Prescribed Medication Data</h2> -->
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Non-Prescribed Medication Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userOtcMedicationDataContainer" class="collapsible-content">
+        <table id="userOtcMedicationData">
+          <tbody>
+            <tr>
+              <th>Medication Number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>PZN Number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Medication Name</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Indication</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Time & Dose</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Intake with Food</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Suspension on Improvement</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Suspension on Deterioration</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Comments</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Storage</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Expiration Date</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
