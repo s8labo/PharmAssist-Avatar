@@ -181,183 +181,293 @@
     let counter = 1;
     let counter2 = 1;
 
-
-    window.addEventListener('webchatincomingactivity', ({ data }) => {
-      const tableBody1 = document.querySelector('#userMasterData tbody');
-      const tableBody2 = document.querySelector('#userMedicationData tbody');
-      const tableBody3 = document.querySelector('#userOtcMedicationData tbody');
-
-      if (data.type === 'message' && data.from.role === 'user' && data.value) {
+        window.addEventListener('webchatincomingactivity', ({ data }) => {
+      if (data.type === 'message' && data.from.role === 'user' && data.value && !data.value.date) {
         const { value } = data;
 
-        // Handle master data
-        const { grund, name, geschlecht, geburtsdatum, kontakt } = value;
-        const masterData = [grund, name, geschlecht, geburtsdatum, kontakt];
+        // Populate Master Data
+        populateTransposedTable('#userMasterData', {
+          Reason: value.grund,
+          Name: value.name,
+          Gender: value.geschlecht,
+          Birthdate: value.geburtsdatum,
+          Contact: value.kontakt,
+        });
 
-        // Check if there's an empty row in the master data table
-        const firstRow1 = tableBody1.querySelector('.empty');
-        if (firstRow1) {
-          // If an empty row is found, fill it and remove the "empty" class
-          fillRow(firstRow1, masterData);
-          firstRow1.classList.remove('empty');
-        } 
+        openCollapsible("#userMasterDataContainer");
 
-        // Handle medication data
+        // Populate Prescribed Medication Data
         // let counter = 1;
         while (true) {
-          const pznKey = `medikament_pzn${counter}`;
           const nameKey = `medikament_name${counter}`;
-          const indicationKey = `medikament_indikation${counter}`;
-          const doseKey = `medikament_dosis${counter}`;
-          const foodKey = `medikament_einnahme${counter}`;
-          const prescriptionKey = `medikament_verordnung${counter}`;
-          const alternativeprescKey = `medikament_falsche_einnahme${counter}`;
-          const forgottendoseKey = `medikament_vergessen${counter}`;
-          const forgottendoseprocedureKey = `medikament_vergessen_vorgehensweise${counter}`;
-          const betterKey = `medikament_besserung${counter}`;
-          const worseKey = `medikament_verschlechterung${counter}`;
-          const commentKey = `medikament_probleme${counter}`;
-          const storageKey = `medikament_lagerung${counter}`;
-          const expirationKey = `medikament_ablaufdatum${counter}`;
+          if (!value[nameKey]) break;
 
-          // Stop if required fields for medication are missing
-          if (!value[nameKey] && !value[indicationKey] && !value[doseKey]) {
-            break;
-          }
-
-          // Construct the medication data row
-          const medicationData = [
-            counter,
-            value[pznKey] || '-',
-            value[nameKey],
-            value[indicationKey],
-            value[doseKey],
-            value[foodKey] || '-',
-            value[prescriptionKey] || '-',
-            value[alternativeprescKey] || '-',
-            value[forgottendoseKey] || '-',
-            value[forgottendoseprocedureKey] || '-',
-            value[betterKey] || '-',
-            value[worseKey] || '-',
-            value[commentKey] || '-',
-            value[storageKey] || '-',
-            value[expirationKey] || '-'
-          ];
-
-          // Check if there's an empty row in the medication table
-          const firstRow2 = tableBody2.querySelector('.empty');
-          if (firstRow2) {
-            // If an empty row is found, fill it and remove the "empty" class
-            fillRow(firstRow2, medicationData);
-            firstRow2.classList.remove('empty');
-          } else {
-            // If no empty row exists, add a new row for medication data
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = medicationData.map(item => `<td>${item}</td>`).join('');
-            tableBody2.appendChild(newRow);
-          }
-
+          const medicationData = {
+            "Medication Number": counter,
+            "PZN Number": value[`medikament_pzn${counter}`] || '-',
+            "Medication Name": value[nameKey],
+            "Indication": value[`medikament_indikation${counter}`] || '-',
+            "Time & Dose": value[`medikament_dosis${counter}`] || '-',
+            "Intake with Food": value[`medikament_einnahme${counter}`] || '-',
+            "Taken as Prescribed": value[`medikament_verordnung${counter}`] || '-',
+            "False Intake": value[`medikament_falsche_einnahme${counter}`] || '-',
+            "Forgotten Dose": value[`medikament_vergessen${counter}`] || '-',
+            "Procedure by False Intake": value[`medikament_vergessen_vorgehensweise${counter}`] || '-',
+            "Suspension on Improvement": value[`medikament_besserung${counter}`] || '-',
+            "Suspension on Deterioration": value[`medikament_verschlechterung${counter}`] || '-',
+            "Comments": value[`medikament_probleme${counter}`] || '-',
+            "Storage": value[`medikament_lagerung${counter}`] || '-',
+            "Expiration Date": value[`medikament_ablaufdatum${counter}`] || '-',
+          };
+          populateMedicationTable('#userMedicationData', medicationData);
+          openCollapsible("#userMedicationDataContainer");
+          closeOtherCollapsibles("#userMedicationDataContainer");
+          
           counter++;
         }
 
+
+        // Populate OTC Medication Data
+        // let counter2 = 1;
         while (true) {
-          const otcpznKey = `otcmedikament_pzn${counter2}`;
           const otcnameKey = `otcmedikament_name${counter2}`;
-          const otcindicationKey = `otcmedikament_indikation${counter2}`;
-          const otcdoseKey = `otcmedikament_dosis${counter2}`;
-          const otcfoodKey = `otcmedikament_einnahme${counter2}`;
-          const otcbetterKey = `otcmedikament_besserung${counter}`;
-          const otcworseKey = `otcmedikament_verschlechterung${counter2}`;
-          const otccommentKey = `otcmedikament_probleme${counter2}`;
-          const otcstorageKey = `otcmedikament_lagerung${counter2}`;
-          const otcexpirationKey = `otcmedikament_ablaufdatum${counter2}`;
+          if (!value[otcnameKey]) break;
 
-          // Stop if required fields for medication are missing
-          if (!value[otcnameKey] && !value[otcindicationKey] && !value[otcdoseKey]) {
-            break;
-          }
-
-          // Construct the medication data row
-          const otcmedicationData = [
-            counter2,
-            value[otcpznKey] || '-',
-            value[otcnameKey],
-            value[otcindicationKey],
-            value[otcdoseKey],
-            value[otcfoodKey] || '-',
-            value[otcbetterKey] || '-',
-            value[otcworseKey] || '-',
-            value[otccommentKey] || '-',
-            value[otcstorageKey] || '-',
-            value[otcexpirationKey] || '-'
-          ];
-
-          // Check if there's an empty row in the medication table
-          const firstRow3 = tableBody3.querySelector('.empty');
-          if (firstRow3) {
-            // If an empty row is found, fill it and remove the "empty" class
-            fillRow(firstRow23, otcmedicationData);
-            firstRow3.classList.remove('empty');
-          } else {
-            // If no empty row exists, add a new row for medication data
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = otcmedicationData.map(item => `<td>${item}</td>`).join('');
-            tableBody3.appendChild(newRow);
-          }
-
+          const otcMedicationData = {
+            "Medication Number": counter2,
+            "PZN Number": value[`otcmedikament_pzn${counter2}`] || '-',
+            "Medication Name": value[otcnameKey],
+            "Indication": value[`otcmedikament_indikation${counter2}`] || '-',
+            "Time & Dose": value[`otcmedikament_dosis${counter2}`] || '-',
+            "Intake with Food": value[`otcmedikament_einnahme${counter2}`] || '-',
+            "Suspension on Improvement": value[`otcmedikament_besserung${counter2}`] || '-',
+            "Suspension on Deterioration": value[`otcmedikament_verschlechterung${counter2}`] || '-',
+            "Comments": value[`otcmedikament_probleme${counter2}`] || '-',
+            "Storage": value[`otcmedikament_lagerung${counter2}`] || '-',
+            "Expiration Date": value[`otcmedikament_ablaufdatum${counter2}`] || '-',
+          };
+          populateMedicationTable('#userOtcMedicationData', otcMedicationData);
+          openCollapsible("#userOtcMedicationDataContainer");
+          closeOtherCollapsibles("#userOtcMedicationDataContainer");
           counter2++;
         }
       }
     });
 
-    // Function to fill row with data
-    function fillRow(row, dataArray) {
-      const cells = row.children;
-      dataArray.forEach((value, index) => {
-        cells[index].textContent = value || '-'; // Fill empty cells with the provided value or default
+    // Helper Function to Populate Transposed Table
+    function populateTransposedTable(selector, data, allowDynamicRows = false) {
+      const table = document.querySelector(selector);
+      const rows = table.querySelectorAll('tr');
+
+      Object.entries(data).forEach(([key, value]) => {
+        let matchingRow = Array.from(rows).find((row) => row.querySelector('th')?.textContent === key);
+
+        if (!matchingRow && allowDynamicRows) {
+          // Create a new row dynamically if not found
+          matchingRow = document.createElement('tr');
+          const headerCell = document.createElement('th');
+          headerCell.textContent = key;
+          const valueCell = document.createElement('td');
+          valueCell.textContent = value || '-';
+
+          matchingRow.appendChild(headerCell);
+          matchingRow.appendChild(valueCell);
+          table.querySelector('tbody').appendChild(matchingRow);
+        } else if (matchingRow) {
+          // Check if the row is already populated
+          const valueCell = matchingRow.querySelector('td');
+          if (!valueCell.textContent || valueCell.textContent === '-') {
+            valueCell.textContent = value || '-'; // Only populate if empty
+          }
+        }
       });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        // Select all scroll containers and their arrows
-        const scrollContainers = document.querySelectorAll(".scroll-container");
+    function populateMedicationTable(selector, data) {
+      const table = document.querySelector(selector);
+      const rows = table.querySelectorAll('tbody tr');  // Get all rows
 
-        scrollContainers.forEach((container) => {
-            const leftArrow = container.parentNode.querySelector(".left-arrow");
-            const rightArrow = container.parentNode.querySelector(".right-arrow");
+      // Loop through each row and replace empty cells with the new data
+      let rowIndex = 0;
+      Object.entries(data).forEach(([key, value]) => {
+        if (rowIndex < rows.length) {
+          const tr = rows[rowIndex]; // Get the current row
+          const td = tr.querySelector('td');  // Get the first <td> in the row
 
-            if (!container || !leftArrow || !rightArrow) {
-                console.error("Elements not found for a scroll container.");
-                return;
-            }
+          // If the <td> is empty, replace it with the new data
+          if (td && td.textContent.trim() === "") {
+            td.textContent = value;
+          } else {
+            // If the <td> already has data, create a new <td> and append it to the row
+            const newTd = document.createElement('td');
+            newTd.textContent = value;
+            tr.appendChild(newTd);
+          }
+        }
+        rowIndex++; // Move to the next row
+      });
+    }
 
-            const scrollStep = 100;
-
-            // Update arrow visibility based on scroll position
-            function updateArrowVisibility() {
-                const scrollLeft = container.scrollLeft;
-                const maxScrollLeft = container.scrollWidth - container.clientWidth;
-
-                leftArrow.classList.toggle("hidden", scrollLeft === 0);
-                rightArrow.classList.toggle("hidden", scrollLeft >= maxScrollLeft);
-            }
-
-            // Scroll event listeners for arrows
-            leftArrow.addEventListener("click", () => {
-                container.scrollBy({ left: -scrollStep, behavior: "smooth" });
-            });
-
-            rightArrow.addEventListener("click", () => {
-                container.scrollBy({ left: scrollStep, behavior: "smooth" });
-            });
-
-            container.addEventListener("scroll", updateArrowVisibility);
-            window.addEventListener("resize", updateArrowVisibility);
-
-            // Initialize arrow visibility for each table
-            updateArrowVisibility();
+    document.addEventListener("DOMContentLoaded", () => {
+      // Add click listeners to all collapsible headers
+      document.querySelectorAll(".collapsible-header").forEach((header) => {
+        header.addEventListener("click", () => {
+          const content = header.nextElementSibling;
+          const isOpen = content.classList.contains("open");
+          header.classList.toggle("collapsed", isOpen);
+          content.classList.toggle("open", !isOpen);
         });
+      });
     });
+
+    function openCollapsible(selector) {
+      const container = document.querySelector(selector);
+      const header = container.previousElementSibling;
+      const isOpen = container.classList.contains("open");
+
+      if (!isOpen) {
+        header.classList.remove("collapsed");
+        container.classList.add("open");
+      }
+    }
+
+    function closeOtherCollapsibles(excludeSelector) {
+      document.querySelectorAll(".collapsible-content").forEach((content) => {
+        if (!content.matches(excludeSelector)) {
+          content.classList.remove("open");
+          content.previousElementSibling.classList.add("collapsed");
+        }
+      });
+    }
+
+// Wait until the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Find the upload button container
+  const uploadButtonContainer = document.querySelector('.webchat__upload-button');
+
+  // Create a new button for webcam capture
+  const webcamButton = document.createElement('button');
+  webcamButton.innerHTML = '📷'; // You can use an icon here
+  webcamButton.className = 'webchat__webcam-button';
+  webcamButton.title = 'Take a Photo';
+  webcamButton.style.fontSize = '20px';
+
+  // Append the button to the upload button container
+  uploadButtonContainer.appendChild(webcamButton);
+
+  // Hide the button on mobile devices
+  const hideOnMobile = () => {
+    if (window.innerWidth <= 768) { // Adjust the breakpoint as needed
+      webcamButton.style.display = 'none';
+    } else {
+      webcamButton.style.display = 'block';
+    }
+  };
+
+  // Run the hideOnMobile function on page load and window resize
+  hideOnMobile();
+  window.addEventListener('resize', hideOnMobile);
+
+  // Add an event listener for the webcam button
+  webcamButton.addEventListener('click', () => {
+    // Start webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.autoplay = true;
+        video.style.width = '100%';
+
+        // Create a modal or overlay to display the video
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.zIndex = '1000';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.appendChild(video);
+
+        // Add a capture button
+        const captureButton = document.createElement('button');
+        captureButton.innerText = 'Capture';
+        captureButton.style.fontSize = '20px';
+        captureButton.style.fontWeight = 'bold';
+        captureButton.style.margin = '10px';
+        captureButton.style.padding = '5px 15px';
+        captureButton.style.position = 'absolute';
+        captureButton.style.bottom = '20%'; // Position capture button at the bottom
+        captureButton.style.left = '50%';  // Center horizontally
+        captureButton.style.transform = 'translateX(-50%)'; 
+        captureButton.style.borderRadius = '10px';
+        overlay.appendChild(captureButton);
+
+        // Add an exit button
+        const exitButton = document.createElement('button');
+        exitButton.innerText = 'Exit';
+        exitButton.style.fontSize = '20px';
+        exitButton.style.fontWeight = 'bold';
+        exitButton.style.margin = '10px';
+        exitButton.style.padding = '5px 15px';
+        exitButton.style.backgroundColor = '#ff4d4d';
+        exitButton.style.color = 'white';
+        exitButton.style.position = 'absolute';
+        exitButton.style.top = '20px'; // Position exit button at the top
+        exitButton.style.right = '20px'; // Align to the right
+        exitButton.style.borderRadius = '10px';
+        overlay.appendChild(exitButton);
+
+        // Append the overlay to the body
+        document.body.appendChild(overlay);
+
+        // Handle the capture
+        captureButton.addEventListener('click', () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const context = canvas.getContext('2d');
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // Stop the webcam stream
+          stream.getTracks().forEach(track => track.stop());
+
+          // Remove the overlay
+          document.body.removeChild(overlay);
+
+          // Convert canvas to a blob and send to bot
+          canvas.toBlob(blob => {
+            const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+
+            // Use Web Chat's file attachment logic to send the file
+            const inputElement = document.querySelector('.webchat__upload-button--file-input');
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            inputElement.files = dataTransfer.files;
+
+            // Trigger the change event to upload the file
+            const event = new Event('change', { bubbles: true });
+            inputElement.dispatchEvent(event);
+          });
+        });
+
+        // Handle the exit button
+        exitButton.addEventListener('click', () => {
+          // Stop the webcam stream
+          stream.getTracks().forEach(track => track.stop());
+
+          // Remove the overlay
+          document.body.removeChild(overlay);
+        });
+      })
+      .catch(error => console.error('Error accessing webcam:', error));
+  });
+});
+
 
 
 
