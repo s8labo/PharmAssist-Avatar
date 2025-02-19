@@ -240,7 +240,7 @@ table {
   100% { transform: rotate(360deg); }
 }
 
-.webchat__upload-button {
+/*.webchat__upload-button {
     width: 75px!important;
 }
 
@@ -252,7 +252,7 @@ table {
     padding-rigt: 7px;
     border-right: 1px solid #ccc;
     padding-right: 9px;
-}
+}*/
 
 .collapsible-header {
     display: flex;
