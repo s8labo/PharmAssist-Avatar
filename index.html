@@ -329,6 +329,9 @@
       if (!isOpen) {
         header.classList.remove("collapsed");
         container.classList.add("open");
+        setTimeout(() => {
+          container.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 200);
       }
     }
 
