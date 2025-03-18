@@ -182,52 +182,21 @@
     let counter = 1;
     let counter2 = 1;
 
-    window.addEventListener('webchatincomingactivity', ({ data }) => {
+        window.addEventListener('webchatincomingactivity', ({ data }) => {
       if (data.type === 'message' && data.from.role === 'user' && data.value && !data.value.date) {
         const { value } = data;
 
-        if (value.kontakt){
-          populateTransposedTable('#userMasterData', {
-            Name: value.name,
-            Gender: value.geschlecht,
-            Birthdate: value.geburtsdatum,
-            Contact: value.kontakt,
-          });
+        // Populate Master Data
+        populateTransposedTable('#userMasterData', {
+          Reason: value.grund,
+          Concerns: value.problem,
+          Name: value.name,
+          Gender: value.geschlecht,
+          Birthdate: value.geburtsdatum,
+          Contact: value.kontakt,
+        });
 
-          openCollapsible("#userMasterDataContainer");
-        }
-
-        if (value.essen){
-          let healthFields = [
-            { key: "grund", label: "Reason" },
-            { key: "problem", label: "Concerns" },
-            { key: "height", label: "Height" },
-            { key: "weight", label: "Weight" },
-            { key: "allergies", label: "Allergies" },
-            { key: "conditions", label: "Conditions" },
-            { key: "renal", label: "Renal or Hepatic Insufficiency" },
-            { key: "doctors", label: "Multiple Doctors" },
-            { key: "mediplan", label: "Medication Plan" },
-            { key: "info", label: "Sufficiently Informed" },
-            { key: "support", label: "Support" },
-            { key: "essen", label: "Food" }
-          ];
-
-          healthFields.forEach(field => {
-            const valueKey = field.key;
-            if (!value[valueKey]) return;
-
-            const healthData = {
-              [field.label]: value[valueKey] || "-"
-            };
-
-            populateHealthTable('#userHealthData', healthData);
-          });
-
-          openCollapsible("#userHealthDataContainer");
-          closeOtherCollapsibles("#userHealthDataContainer");
-
-        }
+        openCollapsible("#userMasterDataContainer");
 
         // Populate Prescribed Medication Data
         // let counter = 1;
@@ -237,17 +206,20 @@
 
           const medicationData = {
             "Medication Number": counter,
+            // "PZN Number": value[`medikament_pzn${counter}`] || '-',
             "Medication Name": value[nameKey],
-            "Strength": value[`medikament_strength${counter}`] || '-',
-            "Time & Dose": value[`medikament_dosis${counter}`] || '-',
-            "Intake with Meal": value[`medikament_einnahme${counter}`] || '-',
-            "Intake time": value[`medikament_zeit${counter}`] || '-',
             "Indication": value[`medikament_indikation${counter}`] || '-',
+            "Time & Dose": value[`medikament_dosis${counter}`] || '-',
+            "Intake with Food": value[`medikament_einnahme${counter}`] || '-',
             "Taken as Prescribed": value[`medikament_verordnung${counter}`] || '-',
+            "False Intake": value[`medikament_falsche_einnahme${counter}`] || '-',
             "Forgotten Dose": value[`medikament_vergessen${counter}`] || '-',
-            "Effectiveness": value[`medikament_effektiv${counter}`] || '-',
+            // "Procedure by False Intake": value[`medikament_vergessen_vorgehensweise${counter}`] || '-',
+            // "Suspension on Improvement": value[`medikament_besserung${counter}`] || '-',
+            // "Suspension on Deterioration": value[`medikament_verschlechterung${counter}`] || '-',
             "Comments": value[`medikament_probleme${counter}`] || '-',
             "Storage": value[`medikament_lagerung${counter}`] || '-',
+            // "Expiration Date": value[`medikament_ablaufdatum${counter}`] || '-',
           };
           populateMedicationTable('#userMedicationData', medicationData);
           openCollapsible("#userMedicationDataContainer");
@@ -255,6 +227,7 @@
           
           counter++;
         }
+
 
         // Populate OTC Medication Data
         // let counter2 = 1;
@@ -264,16 +237,16 @@
 
           const otcMedicationData = {
             "Medication Number": counter2,
+            // "PZN Number": value[`otcmedikament_pzn${counter2}`] || '-',
             "Medication Name": value[otcnameKey],
-            "Strength": value[`otcmedikament_staerke${counter2}`] || '-',
-            "Time & Dose": value[`otcmedikament_dosis${counter2}`] || '-',
-            "Intake with Meal": value[`otcmedikament_einnahme${counter2}`] || '-',
-            "Intake Time": value[`otcmedikament_zeit${counter2}`] || '-',
             "Indication": value[`otcmedikament_indikation${counter2}`] || '-',
-            "Effectiveness": value[`otcmedikament_effektiv${counter2}`] || '-',
+            "Time & Dose": value[`otcmedikament_dosis${counter2}`] || '-',
+            "Intake with Food": value[`otcmedikament_einnahme${counter2}`] || '-',
+            // "Suspension on Improvement": value[`otcmedikament_besserung${counter2}`] || '-',
+            // "Suspension on Deterioration": value[`otcmedikament_verschlechterung${counter2}`] || '-',
             "Comments": value[`otcmedikament_probleme${counter2}`] || '-',
             "Storage": value[`otcmedikament_lagerung${counter2}`] || '-',
-            "Recommendation": value[`otcmedikament_empfehlung${counter2}`] || '-',
+            // "Expiration Date": value[`otcmedikament_ablaufdatum${counter2}`] || '-',
           };
           populateMedicationTable('#userOtcMedicationData', otcMedicationData);
           openCollapsible("#userOtcMedicationDataContainer");
@@ -282,7 +255,6 @@
         }
       }
     });
-
 
     // Helper Function to Populate Transposed Table
     function populateTransposedTable(selector, data, allowDynamicRows = false) {
@@ -309,32 +281,6 @@
           if (!valueCell.textContent || valueCell.textContent === '-') {
             valueCell.textContent = value || '-'; // Only populate if empty
           }
-        }
-      });
-    }
-
-    function populateHealthTable(selector, data) {
-      const table = document.querySelector(selector);
-      const rows = table.querySelectorAll('tbody tr');
-
-      Object.entries(data).forEach(([label, value]) => {
-        let rowFound = false;
-
-        rows.forEach(row => {
-          const th = row.querySelector('th');
-          const td = row.querySelector('td');
-
-          if (th && th.textContent.trim() === label) {
-            // Update existing row's <td> if it's empty or needs updating
-            if (td && (td.textContent.trim() === "" || td.textContent.trim() === "-")) {
-              td.textContent = value;
-            }
-            rowFound = true;
-          }
-        });
-
-        if (!rowFound) {
-          console.warn(`Row for "${label}" not found in table. Make sure the table structure is correct.`);
         }
       });
     }
@@ -428,6 +374,14 @@
         <table id="userMasterData">
           <tbody>
             <tr>
+              <th>Reason</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Concerns</th>
+              <td></td>
+            </tr>
+            <tr>
               <th>Name</th>
               <td></td>
             </tr>
@@ -448,67 +402,6 @@
       </div>
     </div>
     <br>
-    <div class="collapsible-container">
-      <div class="collapsible-header">
-        <span>Health Data</span>
-        <span class="toggle-arrow">▼</span>
-      </div>
-      <div id="userHealthDataContainer" class="collapsible-content">
-        <table id="userHealthData">
-          <tbody>
-            <tr>
-              <th>Reason</th>
-              <td id="reason"></td>
-            </tr>
-            <tr>
-              <th>Concerns</th>
-              <td id="concerns"></td>
-            </tr>
-            <tr>
-              <th>Height</th>
-              <td id="height"></td>
-            </tr>
-            <tr>
-              <th>Weight</th>
-              <td id="weight"></td>
-            </tr>
-            <tr>
-              <th>Allergies</th>
-              <td id="allergies"></td>
-            </tr>
-            <tr>
-              <th>Conditions</th>
-              <td id="conditions"></td>
-            </tr>
-            <tr>
-              <th>Renal or Hepatic Insufficiency</th>
-              <td id="renal"></td>
-            </tr>
-            <tr>
-              <th>Multiple Doctors</th>
-              <td id="doctors"></td>
-            </tr>
-            <tr>
-              <th>Medication Plan</th>
-              <td id="mediplan"></td>
-            </tr>
-            <tr>
-              <th>Sufficiently Informed</th>
-              <td id="info"></td>
-            </tr>
-            <tr>
-              <th>Support</th>
-              <td id="support"></td>
-            </tr>
-            <tr>
-              <th>Food</th>
-              <td id="essen"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <br>
-    </div>
     <!-- <h2>Your Prescribed Medication Data</h2> -->
     <div class="collapsible-container">
       <div class="collapsible-header">
@@ -522,24 +415,12 @@
               <th>Medication Number</th>
               <td></td>
             </tr>
+ <!--            <tr>
+              <th>PZN Number</th>
+              <td></td>
+            </tr> -->
             <tr>
               <th>Medication Name</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Strength</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Time & Dose</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Intake with Meal</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Intake Time</th>
               <td></td>
             </tr>
             <tr>
@@ -547,25 +428,49 @@
               <td></td>
             </tr>
             <tr>
-              <th>Intake as Prescribed</th>
+              <th>Time & Dose</th>
               <td></td>
             </tr>
             <tr>
-              <th>Forgotten Intake</th>
+              <th>Intake with Food</th>
               <td></td>
             </tr>
             <tr>
-              <th>Effectiveness</th>
+              <th>Taken as Prescribed</th>
               <td></td>
             </tr>
             <tr>
-              <th>Problems or Comments</th>
+              <th>False Intake</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Forgotten Dose</th>
+              <td></td>
+            </tr>
+<!--             <tr>
+              <th>Procedure by False Intake</th>
+              <td></td>
+            </tr> -->
+<!--             <tr>
+              <th>Suspension on Improvement</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Suspension on Deterioration</th>
+              <td></td>
+            </tr> -->
+            <tr>
+              <th>Comments</th>
               <td></td>
             </tr>
             <tr>
               <th>Storage</th>
               <td></td>
             </tr>
+<!--             <tr>
+              <th>Expiration Date</th>
+              <td></td>
+            </tr> -->
           </tbody>
         </table>
       </div>
@@ -584,24 +489,12 @@
               <th>Medication Number</th>
               <td></td>
             </tr>
+<!--             <tr>
+              <th>PZN Number</th>
+              <td></td>
+            </tr> -->
             <tr>
               <th>Medication Name</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Strength</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Time & Dose</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Intake with Meal</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Intake Time</th>
               <td></td>
             </tr>
             <tr>
@@ -609,21 +502,33 @@
               <td></td>
             </tr>
             <tr>
-              <th>Effectiveness</th>
+              <th>Time & Dose</th>
               <td></td>
             </tr>
             <tr>
-              <th>Problems or Comments</th>
+              <th>Intake with Food</th>
+              <td></td>
+            </tr>
+           <!--  <tr>
+              <th>Suspension on Improvement</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Suspension on Deterioration</th>
+              <td></td>
+            </tr> -->
+            <tr>
+              <th>Comments</th>
               <td></td>
             </tr>
             <tr>
               <th>Storage</th>
               <td></td>
             </tr>
-            <tr>
-              <th>Recommendation</th>
+        <!--     <tr>
+              <th>Expiration Date</th>
               <td></td>
-            </tr>
+            </tr> -->
           </tbody>
         </table>
       </div>
