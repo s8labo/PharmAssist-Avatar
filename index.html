@@ -191,26 +191,25 @@
             Name: value.name,
             Gender: value.geschlecht,
             Birthdate: value.geburtsdatum,
+            Height: value.groesse,
+            Weight: value.gewicht,
             Contact: value.kontakt,
           });
 
           openCollapsible("#userMasterDataContainer");
         }
 
-        if (value.essen){
+        if (value.support){
           let healthFields = [
             { key: "grund", label: "Reason" },
             { key: "problem", label: "Concerns" },
-            { key: "height", label: "Height" },
-            { key: "weight", label: "Weight" },
             { key: "allergies", label: "Allergies" },
             { key: "conditions", label: "Conditions" },
             { key: "renal", label: "Renal or Hepatic Insufficiency" },
             { key: "doctors", label: "Multiple Doctors" },
             { key: "mediplan", label: "Medication Plan" },
             { key: "info", label: "Sufficiently Informed" },
-            { key: "support", label: "Support" },
-            { key: "essen", label: "Food" }
+            { key: "support", label: "Support" }
           ];
 
           healthFields.forEach(field => {
@@ -241,6 +240,7 @@
             "Strength": value[`medikament_strength${counter}`] || '-',
             "Time & Dose": value[`medikament_dosis${counter}`] || '-',
             "Intake with Meal": value[`medikament_einnahme${counter}`] || '-',
+            "Intake with Drinks or Food": value[`medikament_getraenke${counter}`] || '-',
             "Intake time": value[`medikament_zeit${counter}`] || '-',
             "Indication": value[`medikament_indikation${counter}`] || '-',
             "Taken as Prescribed": value[`medikament_verordnung${counter}`] || '-',
@@ -268,6 +268,7 @@
             "Strength": value[`otcmedikament_staerke${counter2}`] || '-',
             "Time & Dose": value[`otcmedikament_dosis${counter2}`] || '-',
             "Intake with Meal": value[`otcmedikament_einnahme${counter2}`] || '-',
+            "Intake with Drinks or Food": value[`otcmedikament_getraenke${counter2}`] || '-',
             "Intake Time": value[`otcmedikament_zeit${counter2}`] || '-',
             "Indication": value[`otcmedikament_indikation${counter2}`] || '-',
             "Effectiveness": value[`otcmedikament_effektiv${counter2}`] || '-',
@@ -400,8 +401,6 @@
     }
 
 
-
-
   </script>
 </head>
 
@@ -440,6 +439,14 @@
               <td></td>
             </tr>
             <tr>
+              <th>Height</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Weight</th>
+              <td></td>
+            </tr>
+            <tr>
               <th>Contact</th>
               <td></td>
             </tr>
@@ -463,14 +470,6 @@
             <tr>
               <th>Concerns</th>
               <td id="concerns"></td>
-            </tr>
-            <tr>
-              <th>Height</th>
-              <td id="height"></td>
-            </tr>
-            <tr>
-              <th>Weight</th>
-              <td id="weight"></td>
             </tr>
             <tr>
               <th>Allergies</th>
@@ -499,10 +498,6 @@
             <tr>
               <th>Support</th>
               <td id="support"></td>
-            </tr>
-            <tr>
-              <th>Food</th>
-              <td id="essen"></td>
             </tr>
           </tbody>
         </table>
@@ -537,6 +532,10 @@
             <tr>
               <th>Intake with Meal</th>
               <td></td>
+            </tr>
+            <tr>
+              <th>Drinks/ Food</th>
+              <td id="essen"></td>
             </tr>
             <tr>
               <th>Intake Time</th>
@@ -599,6 +598,10 @@
             <tr>
               <th>Intake with Meal</th>
               <td></td>
+            </tr>
+            <tr>
+              <th>Drinks/ Food</th>
+              <td id="essen"></td>
             </tr>
             <tr>
               <th>Intake Time</th>
