@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="UTF-8">
   <title>PharmAssistant</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
@@ -39,7 +38,7 @@
           body: 'F',
           avatarMood: 'neutral',
           ttsLang: "de-DE",
-          ttsVoice: "de-DE-Wavenet-G",
+          ttsVoice: "de-DE-Standard-A",
           lipsyncLang: 'en'
         }, (ev) => {
           if ( ev.lengthComputable ) {
@@ -156,6 +155,17 @@
 
         }, document.getElementById('webchat'));
 
+        function replaceUmlautForTTS(text) {
+          return text
+            .replace(/ü/g, 'ue')
+            .replace(/ö/g, 'oe')
+            .replace(/ä/g, 'ae')
+            .replace(/Ü/g, 'Ue')
+            .replace(/Ö/g, 'Oe')
+            .replace(/Ä/g, 'Ae')
+            .replace(/ß/g, 'ss');
+        }
+
         // Event listener for incoming bot activities
         window.addEventListener('webchatincomingactivity', ({ data }) => {
           if (data.type === 'message' && data.from.role === 'bot') {
@@ -163,9 +173,11 @@
             // const messageID = data;
             // console.log(`Bot says: ${JSON.stringify(messageID, null, 2)}`);
 
+             const messageForTTS = replaceUmlautForTTS(botMessage);
+
             // Make the avatar speak the bot message using TTS
             if (typeof head !== 'undefined' && head.speakText) {
-              head.speakText(botMessage); // Avatar speaks the bot's message
+              head.speakText(messageForTTS); // Avatar speaks the bot's message
             } else {
               console.error('Avatar head is not initialized.');
             }
@@ -179,7 +191,6 @@
       window.addEventListener('webchatincomingactivity', ({ data }) => {
         console.log(`all data: ${JSON.stringify(data)}`);
       });
-
 
     let counter = 1;
     let counter2 = 1;
@@ -407,7 +418,235 @@
 </head>
 
 <body>
-  <div id="center-panel">
+  <div id="left-panel">
+    <div class="header"><h1>Your PharmAssistant</h1></div>
+    <div id="container"><p>The PharmAssistant is here to simplify your medication review process. It helps you collect and organize the details of the medications you're currently taking.<br>
+    💬 How it works: </p>
+    <ul>
+        <li>Start chatting with the assistant.</li>
+        <li>Share your master data, prescribed medication and non-prescribed medication information.</li>
+        <li>Review and confirm the information.</li>
+    </ul>
+    <p>
+        Once confirmed, your medication list will appear here for easy reference.
+    </p></div>
+    <!-- <h2>Your Master Data</h2> -->
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Master Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userMasterDataContainer" class="collapsible-content">
+        <table id="userMasterData">
+          <tbody>
+            <tr>
+              <th>Name</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Gender</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Birthdate</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Height</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Weight</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Contact</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <br>
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Health Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userHealthDataContainer" class="collapsible-content">
+        <table id="userHealthData">
+          <tbody>
+            <tr>
+              <th>Reason</th>
+              <td id="reason"></td>
+            </tr>
+            <tr>
+              <th>Concerns</th>
+              <td id="concerns"></td>
+            </tr>
+            <tr>
+              <th>Allergies</th>
+              <td id="allergies"></td>
+            </tr>
+            <tr>
+              <th>Conditions</th>
+              <td id="conditions"></td>
+            </tr>
+            <tr>
+              <th>Renal or Hepatic Insufficiency</th>
+              <td id="renal"></td>
+            </tr>
+            <tr>
+              <th>Multiple Doctors</th>
+              <td id="doctors"></td>
+            </tr>
+            <tr>
+              <th>Medication Plan</th>
+              <td id="mediplan"></td>
+            </tr>
+            <tr>
+              <th>Sufficiently Informed</th>
+              <td id="info"></td>
+            </tr>
+            <tr>
+              <th>Support</th>
+              <td id="support"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br>
+    </div>
+    <!-- <h2>Your Prescribed Medication Data</h2> -->
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Prescribed Medication Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userMedicationDataContainer" class="collapsible-content">
+        <table id="userMedicationData">
+          <tbody>
+            <tr>
+              <th>Medication Number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Medication Name</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Strength</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Time & Dose</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Intake with Meal</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Drinks/ Food</th>
+              <td id="essen"></td>
+            </tr>
+            <tr>
+              <th>Intake Time</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Indication</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Intake as Prescribed</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Forgotten Intake</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Effectiveness</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Problems or Comments</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Storage</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <br>
+    <!-- <h2>Your Non-Prescribed Medication Data</h2> -->
+    <div class="collapsible-container">
+      <div class="collapsible-header">
+        <span>Non-Prescribed Medication Data</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div id="userOtcMedicationDataContainer" class="collapsible-content">
+        <table id="userOtcMedicationData">
+          <tbody>
+            <tr>
+              <th>Medication Number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Medication Name</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Strength</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Time & Dose</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Intake with Meal</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Drinks/ Food</th>
+              <td id="essen"></td>
+            </tr>
+            <tr>
+              <th>Intake Time</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Indication</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Effectiveness</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Problems or Comments</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Storage</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Recommendation</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="right-panel">
       <div id="avatar"></div>
       <div id="loading">Loading...</div>
       <div id="webchat" role="main">

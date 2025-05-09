@@ -6,7 +6,7 @@ body, html {
     background-color: white;
     color: black;
     display: flex;
-    justify-content: space-between; /* Align items to the left and right */
+    justify-content: center; /* Align items to the left and right */
 }
 
 .header {
@@ -82,6 +82,21 @@ input {
     padding: 0px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-left: auto; /* Ensure it is on the right side */
+    overflow-y: hidden; 
+    border: 1px solid #ccc;
+
+}
+
+#center-panel {
+    width: 40%;
+    height: 100%;
+/*    display: flex;*/
+    flex-direction: column;
+    background-color: white; /* Chat background */
+    color: black; /* Chat text color */
+    border-radius: 15px;
+    padding: 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow-y: hidden; 
     border: 1px solid #ccc;
 
