@@ -155,6 +155,17 @@
 
         }, document.getElementById('webchat'));
 
+        function replaceUmlautForTTS(text) {
+          return text
+            .replace(/ü/g, 'ue')
+            .replace(/ö/g, 'oe')
+            .replace(/ä/g, 'ae')
+            .replace(/Ü/g, 'Ue')
+            .replace(/Ö/g, 'Oe')
+            .replace(/Ä/g, 'Ae')
+            .replace(/ß/g, 'ss');
+        }
+
         // Event listener for incoming bot activities
         window.addEventListener('webchatincomingactivity', ({ data }) => {
           if (data.type === 'message' && data.from.role === 'bot') {
@@ -162,9 +173,11 @@
             // const messageID = data;
             // console.log(`Bot says: ${JSON.stringify(messageID, null, 2)}`);
 
+             const messageForTTS = replaceUmlautForTTS(botMessage);
+
             // Make the avatar speak the bot message using TTS
             if (typeof head !== 'undefined' && head.speakText) {
-              head.speakText(botMessage); // Avatar speaks the bot's message
+              head.speakText(messageForTTS); // Avatar speaks the bot's message
             } else {
               console.error('Avatar head is not initialized.');
             }
@@ -178,7 +191,6 @@
       window.addEventListener('webchatincomingactivity', ({ data }) => {
         console.log(`all data: ${JSON.stringify(data)}`);
       });
-
 
     let counter = 1;
     let counter2 = 1;
