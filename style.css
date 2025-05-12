@@ -53,16 +53,6 @@ input {
   border-radius: 7px;
 }
 
-#left-panel {
-    width: 60%;
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-y: auto; 
-    overflow-x: auto; 
-}
 
 #avatar {
     display: block;
@@ -72,21 +62,6 @@ input {
     object-fit: contain; 
 }
 
-#right-panel {
-    width: 40%;
-    height: 100%;
-/*    display: flex;*/
-    flex-direction: column;
-    background-color: white; /* Chat background */
-    color: black; /* Chat text color */
-    border-radius: 15px;
-    padding: 0px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-left: auto; /* Ensure it is on the right side */
-    overflow-y: hidden; 
-    border: 1px solid #ccc;
-
-}
 
 #center-panel {
     width: 50%;
@@ -108,6 +83,42 @@ input {
     text-align: center;
     margin-top: 20px;
     color: grey;
+}
+
+
+#loading::after {
+  content: "⏳"; /* Spinner icon or other loading animation */
+  font-size: 24px;
+  animation: spin 1s infinite linear;
+}
+
+
+#left-panel {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow-y: auto; 
+    overflow-x: auto; 
+}
+
+
+#right-panel {
+    width: 40%;
+    height: 100%;
+/*    display: flex;*/
+    flex-direction: column;
+    background-color: white; /* Chat background */
+    color: black; /* Chat text color */
+    border-radius: 15px;
+    padding: 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: auto; /* Ensure it is on the right side */
+    overflow-y: hidden; 
+    border: 1px solid #ccc;
+
 }
 
 table {
@@ -241,18 +252,6 @@ table {
     display: none;
 }
 
-#loading {
-  text-align: center;
-  padding: 20px;
-  font-size: 16px;
-  color: #333;
-}
-
-#loading::after {
-  content: "⏳"; /* Spinner icon or other loading animation */
-  font-size: 24px;
-  animation: spin 1s infinite linear;
-}
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -306,33 +305,36 @@ table {
   padding-top: 30px;
   padding-bottom: 30px;
 }
+@media (max-width: 768px) {
+    #center-panel {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
 
-@media only screen and (max-width: 768px) {
+    .header, #container {
+        width: 100%;
+        font-size: 16px;
+        margin-right: 0;
+    }
+
+    input {
+        font-size: 16px !important;
+    }
+
+    #webchat {
+        font-size: 18px;
+        height: 60%;
+        width: 100%;
+    }
 
     body, html {
-        flex-direction: column; /* Stacks panels vertically on mobile */
-        padding: 0; /* Ensure no extra padding */
-        margin: 0; /* Ensure no extra margin */
-        box-sizing: border-box; /* Include padding and border in element's width and height */
-    }
-
-    #left-panel{
-        display: none !important;
-/*        width: 100%;
-        height: 50%;
-        overflow-y: auto;*/
-    }
-
-    #right-panel {
-        width: 100%;
-/*        height: 50%;*/
-        display: flex;
         flex-direction: column;
-        background-color: white; /* Chat background */
-        color: black; /* Chat text color */
-        border-radius: 15px;
-        padding: 0px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        overflow: hidden; /* Prevents content from overflowing out of the panel */
+        align-items: stretch;
+    }
+
+    #avatar {
+        max-height: 150px;
     }
 }
+
