@@ -38,8 +38,10 @@
           url: 'https://models.readyplayer.me/67852b6f8b6ec3f7180c1bd5.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
           body: 'F',
           avatarMood: 'neutral',
-          ttsLang: "en-UK",
-          ttsVoice: "en-GB-Standard-A",
+          // ttsLang: "en-UK",
+          // ttsVoice: "en-GB-Standard-A",
+          ttsLang: "de-DE",
+          ttsVoice: "de-DE-Standard-A",
           ttsRate: 1.1,
           lipsyncLang: 'en'
         }, (ev) => {
@@ -109,7 +111,7 @@
             directLine: window.WebChat.createDirectLine({
               token: json.token
             }),
-            locale:"en_US",
+            locale:"de_DE",
             store,
             sendTyping: true,
             // webSpeechPonyfillFactory,
@@ -122,15 +124,27 @@
 
         }, document.getElementById('webchat'));
 
+        function replaceUmlautForTTS(text) {
+          return text
+            .replace(/ü/g, 'ue')
+            .replace(/ö/g, 'oe')
+            .replace(/ä/g, 'ae')
+            .replace(/Ü/g, 'Ue')
+            .replace(/Ö/g, 'Oe')
+            .replace(/Ä/g, 'Ae')
+            .replace(/ß/g, 'ss');
+        }
+
         // Event listener for incoming bot activities
         window.addEventListener('webchatincomingactivity', ({ data }) => {
           if (data.type === 'message' && data.from.role === 'bot') {
             const botMessage = data.text;
             // const messageID = data;
             // console.log(`Bot says: ${JSON.stringify(messageID, null, 2)}`);
+            const messageForTTS = replaceUmlautForTTS(botMessage);
 
             if (typeof head !== 'undefined' && head.speakText) {
-              head.speakText(botMessage); 
+              head.speakText(messageForTTS); 
             } else {
               console.error('Avatar head is not initialized.');
             }
