@@ -38,10 +38,10 @@
           url: 'https://models.readyplayer.me/67852b6f8b6ec3f7180c1bd5.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
           body: 'F',
           avatarMood: 'neutral',
-          // ttsLang: "en-UK",
-          // ttsVoice: "en-GB-Standard-A",
-          ttsLang: "de-DE",
-          ttsVoice: "de-DE-Wavenet-F",
+          ttsLang: "en-UK",
+          ttsVoice: "en-GB-Standard-A",
+          // ttsLang: "de-DE",
+          // ttsVoice: "de-DE-Wavenet-F",
           ttsRate: 1.2,
           lipsyncLang: 'en'
         }, (ev) => {
@@ -111,7 +111,7 @@
             directLine: window.WebChat.createDirectLine({
               token: json.token
             }),
-            locale:"de_DE",
+            locale:"en_EN",
             store,
             sendTyping: true,
             // webSpeechPonyfillFactory,
@@ -124,16 +124,16 @@
 
         }, document.getElementById('webchat'));
 
-        function replaceUmlautForTTS(text) {
-          return text
-            .replace(/ü/g, 'ue')
-            .replace(/ö/g, 'oe')
-            .replace(/ä/g, 'ae')
-            .replace(/Ü/g, 'Ue')
-            .replace(/Ö/g, 'Oe')
-            .replace(/Ä/g, 'Ae')
-            .replace(/ß/g, 'ss');
-        }
+        // function replaceUmlautForTTS(text) {
+        //   return text
+        //     .replace(/ü/g, 'ue')
+        //     .replace(/ö/g, 'oe')
+        //     .replace(/ä/g, 'ae')
+        //     .replace(/Ü/g, 'Ue')
+        //     .replace(/Ö/g, 'Oe')
+        //     .replace(/Ä/g, 'Ae')
+        //     .replace(/ß/g, 'ss');
+        // }
 
         // Event listener for incoming bot activities
         window.addEventListener('webchatincomingactivity', ({ data }) => {
@@ -141,10 +141,10 @@
             const botMessage = data.text;
             // const messageID = data;
             // console.log(`Bot says: ${JSON.stringify(messageID, null, 2)}`);
-            const messageForTTS = replaceUmlautForTTS(botMessage);
+            // const messageForTTS = replaceUmlautForTTS(botMessage);
 
             if (typeof head !== 'undefined' && head.speakText) {
-              head.speakText(messageForTTS); 
+              head.speakText(botMessage); 
             } else {
               console.error('Avatar head is not initialized.');
             }
